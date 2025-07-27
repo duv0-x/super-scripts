@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: Post to Mastodon
         run: |
-          MESSAGE="New master version of '${{ github.repository }} 🔥'
-          Author: '${{ github.event.head_commit.author.name }}'
-          Message: '${{ github.event.head_commit.message }}'
+          MESSAGE="🔥 New master version of ${{ github.repository }}!
+          Author: ${{ github.event.head_commit.author.name }}
+          Info: ${{ github.event.head_commit.message }}
           Commit: ${{ github.event.head_commit.url }}
           #Bash #Scripting #GithubActions #DevOps"
 
