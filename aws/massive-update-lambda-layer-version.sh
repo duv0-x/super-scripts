@@ -1,7 +1,7 @@
 #!/bin/bash
 
-OLD_LAYER="arn:aws:lambda:us-west-2:674533299795:layer:cache-extension-prod:3"
-NEW_LAYER="arn:aws:lambda:us-west-2:674533299795:layer:cache-extension-prod:4"
+OLD_LAYER="arn:aws:lambda:us-west-2:123456299795:layer:layer-name-prod:3"
+NEW_LAYER="arn:aws:lambda:us-west-2:123456299795:layer:layer-name-prod:4"
 SCRIPT_PROFILE="prod"
 SCRIPT_REGION="us-west-2"
 
