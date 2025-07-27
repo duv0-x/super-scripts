@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# Configura esto con tu organización
+# Your GitHub organization name
 ORG=""
-# Token personal de GitHub con permiso de "repo" (solo si los repos son privados)
-GITHUB_TOKEN="ghp_sG[...]vtTj"  # ← si son públicos, puedes dejar esto vacío
-# Directorio donde se clonarán los repos
+# Your GitHub personal access token (leave blank for public repos)
+GITHUB_TOKEN="ghp_sG[...]vtTj"
+# Local directory where the repos will be cloned
 DEST_DIR="$HOME/Documents/github/"
 
 mkdir -p "$DEST_DIR"
 cd "$DEST_DIR" || exit 1
 
-# Paginación de la API
+# API pagination
 PAGE=1
 PER_PAGE=100
 
 while :; do
-  echo "🔄 Obteniendo repos página $PAGE..."
+  echo "🔄 Fetching repos page $PAGE..."
 
   if [[ -z "$GITHUB_TOKEN" ]]; then
     RESPONSE=$(curl -s "https://api.github.com/orgs/$ORG/repos?per_page=$PER_PAGE&page=$PAGE")
@@ -27,14 +27,14 @@ while :; do
   [[ "$COUNT" -eq 0 ]] && break
 
   echo "$RESPONSE" | jq -r '.[] | .ssh_url' | while read -r REPO_SSH_URL; do
-    # Reemplaza github.com por github-alias-account (tu alias SSH)
+    # Replace github.com with github-alias-account (your SSH alias) if you need.
     CUSTOM_SSH_URL=$(echo "$REPO_SSH_URL" | sed 's/git@github\.com:/git@github-alias-account:/')
 
     REPO_NAME=$(basename -s .git "$REPO_SSH_URL")
     if [[ -d "$REPO_NAME" ]]; then
-      echo "✅ Repositorio $REPO_NAME ya existe, omitiendo..."
+      echo "✅ Repository $REPO_NAME already exists, skipping..."
     else
-      echo "📥 Clonando $REPO_NAME..."
+      echo "📥 Cloning $REPO_NAME..."
       git clone "$CUSTOM_SSH_URL"
     fi
   done
@@ -42,4 +42,4 @@ while :; do
   ((PAGE++))
 done
 
-echo "🎉 Todos los repositorios de $ORG han sido procesados."
+echo "🎉 All repositories from $ORG have been processed."
