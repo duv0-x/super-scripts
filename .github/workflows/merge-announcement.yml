@@ -1,0 +1,16 @@
+name: Merge Announcement
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - github-actions-integration
+
+jobs:
+  announce:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Say hello
+        run: echo "Pull Request merged: ${{ github.event.pull_request.html_url }}"
