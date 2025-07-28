@@ -11,9 +11,9 @@ for fn in $(aws lambda list-functions \
   --query "Functions[?Layers && contains(Layers[].Arn, \`${OLD_LAYER}\`)].FunctionName" \
   --output text); do
 
-  echo "🔄 Revisando función: $fn"
+  echo "🔄 Checking function: $fn"
 
-  # Obtener las layers actuales
+  # Get current layers
   current_layers=$(aws lambda get-function-configuration \
     --function-name "$fn" \
     --profile $SCRIPT_PROFILE \
@@ -21,7 +21,7 @@ for fn in $(aws lambda list-functions \
     --query "Layers[].Arn" \
     --output text)
 
-  # Construir nueva lista de layers con la nueva versión
+  # New list of layers with the new version
   new_layers=""
   for layer in $current_layers; do
     if [[ "$layer" == "$OLD_LAYER" ]]; then
@@ -30,18 +30,18 @@ for fn in $(aws lambda list-functions \
       new_layers+="\"$layer\","
     fi
   done
-  new_layers="[${new_layers%,}]"  # Elimina la coma final
+  new_layers="[${new_layers%,}]"  # Deletes final coma
 
-  echo "👉 Layers actuales:"
+  echo "👉 Current layers:"
   echo "$current_layers"
-  echo "✅ Nueva configuración:"
+  echo "✅ New setup:"
   echo "$new_layers"
 
-  # Preguntar confirmación
-  read -p "¿Actualizar esta función? [y/N]: " confirm
+  # User confirm
+  read -p "¿Update this function? [y/N]: " confirm
   case "$confirm" in
     [yY][eE][sS]|[yY])
-      echo "🚀 Aplicando cambio..."
+      echo "🚀 Apply..."
       aws lambda update-function-configuration \
         --function-name "$fn" \
         --layers "$new_layers" \
@@ -49,7 +49,7 @@ for fn in $(aws lambda list-functions \
         --region $SCRIPT_REGION
       ;;
     *)
-      echo "⏭️  Saltando $fn"
+      echo "⏭️  Jump $fn"
       ;;
   esac
 
