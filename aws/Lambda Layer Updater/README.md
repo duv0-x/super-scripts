@@ -1,23 +1,22 @@
 # 🔁 AWS Lambda Layer Updater
 
-Este script automatiza la actualización de una capa (Layer) específica en funciones AWS Lambda dentro de una región y perfil determinados. Busca todas las funciones que usan una versión antigua de una capa y ofrece la opción de actualizarlas a una nueva versión.
+This script automates the update of a specific Lambda **Layer** across AWS Lambda functions within a given region and profile. It scans for functions using an old version of a layer and offers the option to update them to a new version.
 
 ---
 
-### 📋 ¿Qué hace?
+### 📋 What Does It Do?
 
-- Busca funciones Lambda que incluyan un ARN de layer específico (`OLD_LAYER`).
-- Muestra sus capas actuales.
-- Reemplaza la capa antigua por una nueva (`NEW_LAYER`) manteniendo las demás capas intactas.
-- Solicita confirmación antes de actualizar cada función.
-- Aplica el cambio usando `aws lambda update-function-configuration`.
+- Searches for Lambda functions that include a specific **old layer ARN** (`OLD_LAYER`).
+- Displays their current list of layers.
+- Replaces the old layer with the **new one** (`NEW_LAYER`), keeping the rest unchanged.
+- Prompts for confirmation before updating each function.
+- Applies the change using `aws lambda update-function-configuration`.
 
 ---
 
-### ⚙️ Configuración
+### ⚙️ Setup
 
-Edita estas variables en el script según tu entorno:
-
+Edit these variables in the script according to your environment:
 ```bash
 OLD_LAYER="arn:aws:lambda:REGION:ACCOUNT_ID:layer:LAYER_NAME:VERSIÓN_ANTIGUA"
 NEW_LAYER="arn:aws:lambda:REGION:ACCOUNT_ID:layer:LAYER_NAME:VERSIÓN_NUEVA"
@@ -25,21 +24,21 @@ SCRIPT_PROFILE="nombre-del-perfil-aws"
 SCRIPT_REGION="us-west-2"
 ```
 
-### ▶️ Ejecución
+### ▶️ Execution
 
 ```bash
 chmod +x update-layer.sh
 ./update-layer.sh
 ```
 
-El script te pedirá confirmar cada actualización individualmente.
+> ⚠️ The script will ask for confirmation before updating each function individually.
 
-### 🔐 Requisitos
-•	AWS CLI configurado con el perfil indicado (SCRIPT_PROFILE).
-•	Permisos para ejecutar:
-•	lambda:ListFunctions
-•	lambda:GetFunctionConfiguration
-•	lambda:UpdateFunctionConfiguration
-•	jq instalado si decides usarlo para mejoras (aunque este script usa solo Bash y aws CLI).
+### 🔐 Requirements
+- AWS CLI configured with the specified profile (SCRIPT_PROFILE)
+- Permissions for:
+- lambda:ListFunctions
+- lambda:GetFunctionConfiguration
+- lambda:UpdateFunctionConfiguration
+- jq is optional (not used in this script but may be useful for enhancements)
 
-> ⚠️ Nota: El script solo actualiza las funciones que ya utilizan la capa antigua. Las demás funciones permanecen sin cambios.
+> ⚠️ The script only updates functions that already use the old layer. Other functions remain unchanged.
