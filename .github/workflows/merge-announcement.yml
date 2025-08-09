@@ -12,9 +12,7 @@ jobs:
     steps:
       - name: Post to Mastodon
         run: |
-          MESSAGE="${{ github.repository }} news 🔥!
-          
-          ${{ github.event.head_commit.message }}
+          MESSAGE="${{ github.event.head_commit.message }}
           
           Commit: ${{ github.event.head_commit.url }}
           
