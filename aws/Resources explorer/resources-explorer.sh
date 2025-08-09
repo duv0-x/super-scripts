@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# aws_inventory.sh
 # Inventories common AWS resources across all enabled regions + global services.
 # Output: JSONL (one JSON object per line) to stdout or a file.
 
@@ -157,8 +156,3 @@ for region in $REGIONS; do
   | jq -c --arg r "$region" '.Keys[]? | {service:"kms",type:"key",region:$r,key_id:.KeyId}' \
   | while read -r line; do emit "$line"; done
 done
-
-# Post-processing tips:
-#   Filter by service:   grep '"service":"ec2"' inventory.jsonl
-#   Count by type:       jq -r '.service+"."+.type' inventory.jsonl | sort | uniq -c | sort -nr
-#   Load into DuckDB:    duckdb -c "CREATE TABLE inv AS SELECT * FROM read_json_auto('inventory.jsonl');"
