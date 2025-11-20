@@ -12,8 +12,6 @@ const (
 	configPath = ".aws/config"
 )
 
-var organizations = []string{"COMPANY_A", "COMPANY_B", "PERSONAL"}
-
 type Section struct {
 	name     string
 	start    int
@@ -44,8 +42,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Extract organizations from config file
+	organizations := extractOrganizations(lines)
+	if len(organizations) == 0 {
+		fmt.Fprintf(os.Stderr, "No organizations found in config file.\n")
+		fmt.Fprintf(os.Stderr, "Please ensure your config file has sections marked with:\n")
+		fmt.Fprintf(os.Stderr, "## BEGIN ORGANIZATION_NAME\n")
+		fmt.Fprintf(os.Stderr, "...\n")
+		fmt.Fprintf(os.Stderr, "## END ORGANIZATION_NAME\n")
+		os.Exit(1)
+	}
+
 	// Find sections
-	sections := findSections(lines)
+	sections := findSections(lines, organizations)
 
 	// Display current active organization
 	fmt.Println("╔═══════════════════════════════════════════════════════╗")
@@ -53,7 +62,7 @@ func main() {
 	fmt.Println("╚═══════════════════════════════════════════════════════╝")
 	fmt.Println()
 
-	currentActive := getCurrentActive(sections)
+	currentActive := getCurrentActive(sections, organizations)
 	if currentActive != "" {
 		fmt.Printf("📍 Current active organization: \033[1;32m%s\033[0m\n\n", currentActive)
 	}
@@ -69,7 +78,7 @@ func main() {
 		fmt.Printf("%s%d. %s\n", indicator, i+1, formatOrgName(org))
 	}
 	fmt.Println()
-	fmt.Print("Enter your choice (1-3) or 'q' to quit: ")
+	fmt.Printf("Enter your choice (1-%d) or 'q' to quit: ", len(organizations))
 
 	// Read user input
 	reader := bufio.NewReader(os.Stdin)
@@ -106,7 +115,7 @@ func main() {
 	// Switch organization
 	fmt.Printf("\n🔄 Switching to %s...\n", formatOrgName(selectedOrg))
 
-	newLines := switchOrganization(lines, sections, selectedOrg)
+	newLines := switchOrganization(lines, sections, selectedOrg, organizations)
 
 	// Create backup
 	backupPath := configFilePath + ".backup"
@@ -142,6 +151,31 @@ func readLines(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
+// extractOrganizations scans the config file and extracts organization names
+// from the ## BEGIN ORGANIZATION_NAME markers
+func extractOrganizations(lines []string) []string {
+	var organizations []string
+	seen := make(map[string]bool)
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Look for ## BEGIN markers
+		if strings.HasPrefix(trimmed, "## BEGIN ") {
+			orgName := strings.TrimPrefix(trimmed, "## BEGIN ")
+			orgName = strings.TrimSpace(orgName)
+
+			// Avoid duplicates
+			if !seen[orgName] && orgName != "" {
+				organizations = append(organizations, orgName)
+				seen[orgName] = true
+			}
+		}
+	}
+
+	return organizations
+}
+
 func writeLines(path string, lines []string) error {
 	file, err := os.Create(path)
 	if err != nil {
@@ -157,7 +191,7 @@ func writeLines(path string, lines []string) error {
 	return writer.Flush()
 }
 
-func findSections(lines []string) map[string]Section {
+func findSections(lines []string, organizations []string) map[string]Section {
 	sections := make(map[string]Section)
 
 	for i, line := range lines {
@@ -201,7 +235,7 @@ func isSectionActive(lines []string, start, end int) bool {
 	return false
 }
 
-func getCurrentActive(sections map[string]Section) string {
+func getCurrentActive(sections map[string]Section, organizations []string) string {
 	for _, org := range organizations {
 		if section, ok := sections[org]; ok && section.isActive {
 			return formatOrgName(org)
@@ -210,7 +244,7 @@ func getCurrentActive(sections map[string]Section) string {
 	return ""
 }
 
-func switchOrganization(lines []string, sections map[string]Section, targetOrg string) []string {
+func switchOrganization(lines []string, sections map[string]Section, targetOrg string, organizations []string) []string {
 	newLines := make([]string, len(lines))
 	copy(newLines, lines)
 
@@ -245,15 +279,20 @@ func switchOrganization(lines []string, sections map[string]Section, targetOrg s
 	return newLines
 }
 
+// formatOrgName converts organization names from UPPERCASE_WITH_UNDERSCORES
+// to a more readable format (e.g., "COMPANY_A" -> "Company A")
 func formatOrgName(org string) string {
-	switch org {
-	case "COMPANY_A":
-		return "Company A"
-	case "COMPANY_B":
-		return "Company B"
-	case "PERSONAL":
-		return "Personal"
-	default:
-		return org
+	// Replace underscores with spaces
+	formatted := strings.ReplaceAll(org, "_", " ")
+
+	// Split into words and capitalize each word
+	words := strings.Fields(formatted)
+	for i, word := range words {
+		if len(word) > 0 {
+			// Capitalize first letter, lowercase the rest
+			words[i] = strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
+		}
 	}
+
+	return strings.Join(words, " ")
 }

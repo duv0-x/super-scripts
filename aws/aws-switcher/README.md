@@ -6,13 +6,17 @@ A Go-based CLI tool to quickly switch between different AWS organization profile
 
 When working with multiple AWS organizations (e.g., Company A, Company B, and personal accounts), you often need to switch between them. This tool automates that process by managing profile sections in your AWS config file.
 
+**The tool automatically detects organizations from your config file** - no code changes needed! Simply organize your config with `## BEGIN` and `## END` markers.
+
 ## Features
 
 - 🔄 **Quick Switching**: Switch between organizations with a simple menu
+- 🔍 **Auto-Detection**: Automatically discovers organizations from your config file
 - 💾 **Automatic Backup**: Creates a backup before making changes
 - ✨ **Smart Detection**: Shows which organization is currently active
 - 🎯 **Safe Operations**: Validates input and prevents accidental changes
 - 📝 **Clean Interface**: User-friendly CLI with colors and emojis
+- 🎨 **Dynamic Formatting**: Converts `ORGANIZATION_NAME` to readable "Organization Name"
 
 ## Prerequisites
 
@@ -49,7 +53,7 @@ ln -s ~/Documents/github/super-scripts/aws/aws-switcher/aws-switcher /usr/local/
 
 ## Configuration
 
-Your `~/.aws/config` file must be organized with special section markers:
+Your `~/.aws/config` file must be organized with special section markers. The tool will automatically detect all organizations from these markers:
 
 ```ini
 ## BEGIN COMPANY_A
@@ -70,7 +74,10 @@ sso_start_url = https://company-a.awsapps.com/start#/
 ## END PERSONAL
 ```
 
-**Note**: Only one organization should be active (uncommented) at a time.
+**Note**:
+- Only one organization should be active (uncommented) at a time
+- Organization names can be any format (e.g., `LULO_X`, `COMPANY_A`, `PERSONAL`)
+- The tool automatically formats names for display (e.g., `LULO_X` → "Lulo X")
 
 ## Usage
 
@@ -114,11 +121,16 @@ Enter your choice (1-3) or 'q' to quit:
 6. **Uncomments** the selected organization (removes `#` prefix)
 7. **Saves** changes and creates a backup
 
-## Organizations Supported
+## How Organizations are Detected
 
-- **Company A**: Profiles for Company A organization
-- **Company B**: Profiles for Company B organization
-- **Personal**: Personal testing profiles
+The tool automatically scans your `~/.aws/config` file for section markers:
+
+- Looks for `## BEGIN ORGANIZATION_NAME` markers
+- Extracts the organization name after `BEGIN`
+- No hardcoded organization list - fully dynamic!
+- Add or remove organizations by editing your config file
+
+**Example**: If your config has `## BEGIN PRODUCTION` and `## BEGIN DEVELOPMENT`, the tool will automatically show both options in the menu.
 
 ## Backup
 
