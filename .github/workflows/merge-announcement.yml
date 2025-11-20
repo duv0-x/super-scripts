@@ -16,7 +16,7 @@ jobs:
           
           Commit: ${{ github.event.head_commit.url }}
           
-          #Bash #Scripting #GithubActions #DevOps"
+          #Bash #Go #Scripting #DevOps #CloudEngineering"
 
           curl -X POST https://mastodon.social/api/v1/statuses \
             -H "Authorization: Bearer ${{ secrets.MASTODON_TOKEN }}" \

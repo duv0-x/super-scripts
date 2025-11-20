@@ -58,7 +58,7 @@ func main() {
 
 	// Display current active organization
 	fmt.Println("╔═══════════════════════════════════════════════════════╗")
-	fmt.Println("║          AWS Account Organization Switcher           ║")
+	fmt.Println("║          AWS Account Organization Switcher            ║")
 	fmt.Println("╚═══════════════════════════════════════════════════════╝")
 	fmt.Println()
 
