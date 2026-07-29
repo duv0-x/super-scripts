@@ -40,6 +40,20 @@ Each script directory contains:
 - Configured via: `SCRIPT_PROFILE`, `TARGET_RUNTIME`
 - Note: Contains Spanish comments and output messages
 
+### Journal Post Gate (`utils/Journal Post Gate/journal-post-gate.sh`)
+- Deterministic leak check for text about to be published on a public site
+- Built-in rules are generic (AWS accounts, ARNs, IPs, secret prefixes, local paths, creds in URLs)
+- Employer-specific rules live OUTSIDE the repo in `~/.config/journal-post-gate/{patterns,denylist}.txt`
+- Usage: `./journal-post-gate.sh <file>` or stdin; `--patterns` lists the ruleset
+- Exit 0 clean / 1 blocked / 2 usage. Blocks itself when scanned (its own ruleset matches) — expected
+
+### Daily Journal Post (`utils/Journal Post Gate/daily-journal-post.sh`)
+- Turns a private journal entry into a draft post for the personal site, via opencode
+- Opens a pull request and stops — never pushes to master, because that publishes immediately
+- Skips silently if there is no journal entry for the date, or a post already exists for it
+- Usage: `./daily-journal-post.sh [YYYY-MM-DD] [--dry-run]`; model via `JOURNAL_POST_MODEL`
+- Intended to run daily from launchd/cron
+
 ### Claude Agents Status (`utils/Claude Agents Status/claude-agents.sh`)
 - Reports the status of Claude Code background agent sessions from `~/.claude/jobs/*/state.json`
 - Shows state (`working`/`blocked`/`done`), age, tokens consumed, scratch size and ticket name
