@@ -91,13 +91,6 @@ Scripts use hardcoded configuration variables at the top of the file that must b
 - Permission errors are gracefully handled by suppressing stderr
 - Interactive scripts prompt for confirmation before destructive operations
 
-## CI/CD Integration
-
-GitHub Actions workflow (`.github/workflows/merge-announcement.yml`):
-- Triggers on pushes to `master` branch
-- Posts commit messages to Mastodon social media
-- Requires `MASTODON_TOKEN` secret
-
 ## Testing Scripts
 
 No automated tests are present. Scripts should be tested manually:
