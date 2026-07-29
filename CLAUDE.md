@@ -50,6 +50,8 @@ Each script directory contains:
 ### Daily Journal Post (`utils/Journal Post Gate/daily-journal-post.sh`)
 - Turns a private journal entry into a draft post for the personal site, via opencode
 - Opens a pull request and stops — never pushes to master, because that publishes immediately
+- With no date argument, picks the most recent journal entry that has no post yet (last 7 days,
+  `JOURNAL_POST_LOOKBACK`) so it catches up by itself after a gap instead of only handling yesterday
 - Skips silently if there is no journal entry for the date, or a post already exists for it
 - Usage: `./daily-journal-post.sh [YYYY-MM-DD] [--dry-run]`; model via `JOURNAL_POST_MODEL`
 - Intended to run daily from launchd/cron

@@ -1,7 +1,7 @@
 #!/bin/bash
 # daily-journal-post — once a day, turn yesterday's journal entry into a draft post PR.
 #
-#   ./daily-journal-post.sh              yesterday's entry
+#   ./daily-journal-post.sh              most recent entry without a post
 #   ./daily-journal-post.sh 2026-07-23   a specific date
 #   ./daily-journal-post.sh --dry-run    generate and gate, but open no PR
 #
@@ -24,14 +24,26 @@ for a in "$@"; do
     *) DATE="$a" ;;
   esac
 done
-[ -n "$DATE" ] || DATE=$(date -v-1d +%F 2>/dev/null || date -d yesterday +%F)
-
 say() { printf '[%s] %s\n' "$(date +%H:%M:%S)" "$*" | tee -a "$LOG"; }
+
+# Sin fecha explícita: la entrada de journal más reciente (últimos LOOKBACK días)
+# que todavía no tenga post. Así se pone al día solo tras un hueco de varios días,
+# en vez de publicar únicamente "ayer" y perder el resto para siempre.
+LOOKBACK="${JOURNAL_POST_LOOKBACK:-7}"
+if [ -z "$DATE" ]; then
+  for d in $(seq 1 "$LOOKBACK"); do
+    cand=$(date -v-${d}d +%F 2>/dev/null || date -d "$d days ago" +%F)
+    [ -f "$JOURNAL_DIR/$cand.md" ] || continue
+    grep -q "data-date=\"$cand\"" "$SITE/index.html" 2>/dev/null && continue
+    DATE="$cand"; break
+  done
+  [ -n "$DATE" ] || { say "no hay entradas sin publicar en los últimos $LOOKBACK días"; exit 0; }
+  say "entrada más reciente sin post: $DATE"
+fi
 
 ENTRY="$JOURNAL_DIR/$DATE.md"
 [ -f "$ENTRY" ] || { say "sin entrada de journal para $DATE — nada que publicar"; exit 0; }
 
-# ¿ya hay un post de esa fecha?
 if grep -q "data-date=\"$DATE\"" "$SITE/index.html" 2>/dev/null; then
   say "ya existe un post con fecha $DATE — nada que hacer"; exit 0
 fi
