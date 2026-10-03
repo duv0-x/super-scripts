@@ -9,8 +9,8 @@
 # site immediately, and a leak that reaches a public site cannot be unpublished.
 set -uo pipefail
 
-JOURNAL_DIR="$HOME/Documents/Personal/Repositories/personal-kb/journal"
-SITE="$HOME/Documents/Personal/Repositories/duv0-x.github.io"
+JOURNAL_DIR="$HOME/Documents/ia-kb/journal"
+SITE="$HOME/Documents/Repositories/duv0-x.github.io"
 GATE="$(cd "$(dirname "$0")" && pwd)/journal-post-gate.sh"
 MODEL="${JOURNAL_POST_MODEL:-ollama-cloud/deepseek-v4-pro}"
 LOG="$HOME/.claude/logs/daily-journal-post.log"
